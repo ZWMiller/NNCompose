@@ -35,3 +35,13 @@ rests.
 It's quite large as I just generated 15+ minutes to see how consistent the
 algorithm was - but also could be quite interesting. [MP3 Bach
 Example](http://zwmiller.com/projects/Bach_Cantate_BWV20_NNCompose.mp3)
+
+
+### To Do
+
+* Comment code
+* Add installation instructions
+* Add direct use modules with structure `python train_midi_model.py
+output_model_name song_list.txt` and `python generate_music.py input_model_name output.mp3`
+* Add usage instructions
+* Add better error handling
