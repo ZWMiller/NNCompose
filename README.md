@@ -9,7 +9,14 @@ human-readable format, all of the structure of the song (note, timing,
 velocity, etc) is open to the world. With this information, and a clever setup
 for a neural network to 'learn' about a song, one should be able to generate
 new music based on the music used to train the network. A more detailed
-write-up about how this accomplished is coming soon.
+write-up about how this accomplished is coming soon. An example of how the
+neural net can learn a song is shown below. This maps the first 100 notes in
+the song with the actual note in red and the predicted note in blue. This is
+during an early training iteration, so it has not yet learned the minute
+details and is instead mapping along with the overall structure of the song.
+
+
+![Song Map](images/song_map_demo.png)
 
 ### The Tools
 
