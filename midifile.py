@@ -22,9 +22,21 @@ class midiFile(object):
         self.track2 = self.df[self.df['instrument'] == 2]
         self.startTrack = self.track2[self.track2['cmd'].str.contains("Start")]
         self.eof = self.df[self.df['cmd'].str.contains("End_of_file")]
+        self.add_timing_info_to_df()
         self.df = self.df[self.df['cmd'].str.contains("Note_on")]
         self.df['note'] = self.df['note'].apply(np.int64)
 
+    def add_timing_info_to_df(self):
+        timing_df = self.df[self.df['cmd'].str.contains("Note_")]
+        timing = timing_df.sort_values(by=['note','timing'])
+        timing['length'] = timing.timing.diff()
+        timing['beat'] = timing.length.shift(-1)
+        beats = timing[timing['cmd'].str.contains("Note_on")]
+        beats['note_length'] = beats.beat/self.qn*4
+        beats['note_length'] = beats.note_length.astype(int)
+        self.df = self.df.join(beats['note_length'])
+        #self.df['note_length'] = self.df['note_length'].astype(int)
+        
     def forceDataTypes(self,df):
         df['instrument'] = df['instrument'].astype(int)
         df['timing'] = df['timing'].astype(int)
@@ -66,8 +78,8 @@ class midiFile(object):
         time.sleep(5)
         print("Created ", outname)
         
-    def get_trainable_arrays(self, seq_length=10):
-        data = self.df['note'].values
+    def get_trainable_arrays(self, seq_length=10, col='note'):
+        data = self.df[col].values
         x = []
         y = []
         for i in range(seq_length,len(data)):
@@ -78,10 +90,13 @@ class midiFile(object):
         Y = np.reshape(y, len(y))
         return X,Y
         
-    def encode_target(self, y):
-        n_values = 128
-        ohe = np.eye(n_values)[y]
-        return ohe
+    def encode_target(self, y, n_values=128):
+        ohe = []
+        for val in y:
+            el = np.zeros(n_values)
+            el[int(val)-1] = 1
+            ohe.append(el)
+        return np.array(ohe)
     
     def convert_to_midi_format(self, result_notes):
         notes = []

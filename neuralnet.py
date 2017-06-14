@@ -33,3 +33,27 @@ class network(object):
         
     def load_best_model(self, filepath="recent_lstm_model_weights.h5"):
         return load_model(filepath)
+    
+class timing_network(object):
+    def __init__(self, X):
+        self.model = self.getModel(X)
+
+    def getModel(self,X):
+        # create model
+        model = Sequential()
+        model.add(LSTM(400, input_shape=(X.shape[1],X.shape[2]), return_sequences=True))
+        model.add(LSTM(200, input_shape=(X.shape[1],X.shape[2])))
+        model.add(Dense(16,activation='softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        return model
+    
+    def train(self,x,y,epochs=20,batch_size=5,filepath="recent_lstm_timing_model_weights.h5"):
+        checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+        callbacks_list = [checkpoint]
+        # fit the model
+        self.model.fit(x, y, epochs=epochs, batch_size=batch_size, callbacks=callbacks_list)
+        self.model = self.load_best_model(filepath)
+        return self.model
+        
+    def load_best_model(self, filepath="recent_lstm_timing_model_weights.h5"):
+        return load_model(filepath)
